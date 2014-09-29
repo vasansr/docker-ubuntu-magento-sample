@@ -31,7 +31,8 @@ First time, initialize the database with sample data
 docker run -ti --name magento-run \
     --link mysql-run:db \
     --publish 80:80 \
-    --env "MYSQL_USER=root" --env "MYSQL_PASSWORD=password" --env "MYSQL_DATABASE=magento" \
+    --env "MYSQL_USER=root" --env "MYSQL_PASSWORD=password" \
+    --env "MYSQL_DATABASE=magento" \
     vasansr/ubuntu-magento-sample
 ```
 
@@ -50,5 +51,11 @@ Explanation:
 * --link : Link to a running mysql database container
   * mysql-run : this is the name you gave the mysql container when starting it up
   * db : required, this container expects the mysql container to be aliased as 'db'
-* --env : User and password are used to connect, DATABASE is created and initialized with sample data.
+* --env : 
+  * User and password are used to connect to the db
+  * DATABASE is created and initialized with sample data.
 * --publish : expose port 80 to the world via the docker proxy
+
+### TODO
+
+* Remove 'db' hardcoding. We can get this from the docker env variables.
