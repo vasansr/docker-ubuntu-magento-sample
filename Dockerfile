@@ -5,6 +5,8 @@ MAINTAINER Vasan <vasan.srini@gmail.com>
 # Dockerfile based from https://github.com/tutumcloud/tutum-docker-php
 # Modified to include magento dependencies
 
+ENV MAGENTO_SAMPLE_VER 1.9.0.0
+
 #
 # Installations: time consuming. Do these first.
 #
@@ -29,22 +31,25 @@ RUN apt-get update && apt-get -yq install \
 
 # 2. Install magento program files, replace /var/www/html contents completely
 # This is relatively small, 22M compressed, maybe 50M uncompressed
+ADD magento.tar.gz /var/www/
+# we'll have a directory called magento under /var/www/
+# rename this to magento-sample-data-x.x.x.x so that we can untar the
+# sample data directly int this.
+RUN mv /var/www/magento /var/www/magento-sample-data-$MAGENTO_SAMPLE_VER
+
+# now untar the sample data "in-place"
+ADD magento-sample-data.tar.gz /var/www/
+
+# now rename it to html, which is what is expected.
+# Also set ownership and permissions as required by magento.
 RUN rm -rf /var/www/html \
-	&& curl http://www.magentocommerce.com/downloads/assets/1.9.0.1/magento-1.9.0.1.tar.gz \
-	| tar -xz -C /var/www \
-	&& mv /var/www/magento /var/www/html
-
-# 3. Install magento sample files: this is much bigger, about 600M uncompressed
-RUN curl http://www.magentocommerce.com/downloads/assets/1.9.0.0/magento-sample-data-1.9.0.0.tar.gz\
-	| tar -xz -C /var/www/html --overwrite 
-
-# 4. Set permissions for magento and sample files
-RUN chown -R www-data:www-data /var/www/html
-RUN find /var/www/html -type d -exec chmod 700 {} \;
-RUN find /var/www/html -type f -exec chmod 600 {} \;
+	&& mv /var/www/magento-sample-data-$MAGENTO_SAMPLE_VER /var/www/html \
+	&& chown -R www-data:www-data /var/www/html \
+	&& find /var/www/html -type d -exec chmod 700 {} \; \
+	&& find /var/www/html -type f -exec chmod 600 {} \;
 
 #
-# Configure stuff
+# Configure stuff: not so time / space consuming.
 #
 
 # todo: what's this?
@@ -63,6 +68,10 @@ RUN ln -s ../conf-available/magento.conf /etc/apache2/conf-enabled/magento.conf
 
 # add a sample php file to test if php is working. 
 # ADD heartbeat.php /var/www/html/heartbeat.php
+
+#
+# Setup the image and startup
+#
 
 # Add startup scripts
 ADD initialize.sh /initialize.sh
