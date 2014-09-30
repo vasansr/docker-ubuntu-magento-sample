@@ -13,12 +13,9 @@ download it and build the var/www/html directory image before you attempt to bui
 an image. A helper script called get-magento.sh is provided so that you can so this
 easily.
 
-* magento.tar.gz
-* magento-sample-data.tar.gz
-
 ### Run-time Dependencies
 
-At runtime, this container expects a linked container with a (possibley empty) mysql
+At runtime, this container expects a linked container with a (possibly empty) mysql
 running. One such mysql container can be launched using vasansr/ubuntu-mysql.
 
 When run for the first time, the container will attempt to initialize the database
