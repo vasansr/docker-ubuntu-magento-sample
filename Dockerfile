@@ -5,8 +5,6 @@ MAINTAINER Vasan <vasan.srini@gmail.com>
 # Dockerfile based from https://github.com/tutumcloud/tutum-docker-php
 # Modified to include magento dependencies
 
-ENV MAGENTO_SAMPLE_VER 1.9.0.0
-
 #
 # Installations: time consuming. Do these first.
 #
@@ -29,24 +27,12 @@ RUN apt-get update && apt-get -yq install \
        	php-apc \
 && rm -rf /var/lib/apt/lists/*
 
-# 2. Install magento program files, replace /var/www/html contents completely
-# This is relatively small, 22M compressed, maybe 50M uncompressed
-ADD magento.tar.gz /var/www/
-# we'll have a directory called magento under /var/www/
-# rename this to magento-sample-data-x.x.x.x so that we can untar the
-# sample data directly int this.
-RUN mv /var/www/magento /var/www/magento-sample-data-$MAGENTO_SAMPLE_VER
-
-# now untar the sample data "in-place"
-ADD magento-sample-data.tar.gz /var/www/
-
-# now rename it to html, which is what is expected.
-# Also set ownership and permissions as required by magento.
-RUN rm -rf /var/www/html \
-	&& mv /var/www/magento-sample-data-$MAGENTO_SAMPLE_VER /var/www/html \
-	&& chown -R www-data:www-data /var/www/html \
-	&& find /var/www/html -type d -exec chmod 700 {} \; \
-	&& find /var/www/html -type f -exec chmod 600 {} \;
+#
+# The following source files are not checked in, we need to download and construct
+# them as per the script get-magento.sh
+#
+COPY magento/ /var/www/html/
+COPY magento-sample-data-1.9.0.0/magento_sample_data_for_1.9.0.0.sql /
 
 #
 # Configure stuff: not so time / space consuming.

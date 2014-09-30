@@ -8,9 +8,10 @@ apt-get, installs magento and adds the sample data.
 
 ### Building the image
 
-Sample data is not part of this source, you will need to download it
-yourself before you attempt to build an image using this. It expects the
-following to be in the root directory of the image build context:
+Magento source and sample data is not part of this source, you will need to 
+download it and build the var/www/html directory image before you attempt to build
+an image. A helper script called get-magento.sh is provided so that you can so this
+easily.
 
 * magento.tar.gz
 * magento-sample-data.tar.gz
@@ -56,6 +57,4 @@ Explanation:
   * DATABASE is created and initialized with sample data.
 * --publish : expose port 80 to the world via the docker proxy
 
-### TODO
 
-* Remove 'db' hardcoding. We can get this from the docker env variables.

@@ -3,8 +3,8 @@
 set -e
 
 SAMPLE_DATA_FILE=/magento_sample_data*.sql
-MYSQL="mysql -h db -u$MYSQL_USER -p$MYSQL_PASSWORD"
-MYSQLDB="mysql -h db -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE"
+MYSQL="mysql -h db -P $DB_PORT_3306_TCP_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD"
+MYSQLDB="$MYSQL $MYSQL_DATABASE"
 
 if [ -f $SAMPLE_DATA_FILE -a -n "$MYSQL_DATABASE" ] ; then
 	# The init sql file is still lying around. This means we have not inited the db
@@ -36,6 +36,10 @@ fi
 
 # We no longer need the sql file.
 rm $SAMPLE_DATA_FILE
+
+chown -R www-data:www-data /var/www/html
+find /var/www/html -type d -exec chmod 700 {} \;
+find /var/www/html -type f -exec chmod 600 {} \;
 
 exec "$@"
 
