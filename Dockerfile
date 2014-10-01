@@ -34,6 +34,10 @@ RUN apt-get update && apt-get -yq install \
 COPY magento/ /var/www/html/
 COPY magento-sample-data-1.9.0.0/magento_sample_data_for_1.9.0.0.sql /
 
+# The following adds another 600 Mb to the image size. Better do it after launching
+# the container (see initialize.sh).
+# RUN chown -R www-data:www-data /var/www/html && chmod -R go-rwX /var/www/html
+
 #
 # Configure stuff: not so time / space consuming.
 #
@@ -58,15 +62,13 @@ RUN ln -s ../conf-available/magento.conf /etc/apache2/conf-enabled/magento.conf
 #
 # Setup the image and startup
 #
+EXPOSE 80
+WORKDIR /var/www/html
+ENTRYPOINT ["/initialize.sh"]
+CMD ["/run.sh"]
 
 # Add startup scripts
 ADD initialize.sh /initialize.sh
 ADD run.sh /run.sh
 RUN chmod 755 /*.sh
-
-# wrap up
-EXPOSE 80
-WORKDIR /var/www/html
-ENTRYPOINT ["/initialize.sh"]
-CMD ["/run.sh"]
 

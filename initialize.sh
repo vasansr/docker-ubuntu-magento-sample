@@ -1,12 +1,16 @@
 #!/bin/bash
 
-set -e
-
 SAMPLE_DATA_FILE=/magento_sample_data*.sql
-MYSQL="mysql -h db -P $DB_PORT_3306_TCP_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD"
+
+if [ -z $MYSQL_HOST ] ; then
+	echo "Setting MYSQL_HOST as $DB_PORT_3306_TCP_ADDR"
+	MYSQL_HOST=$DB_PORT_3306_TCP_ADDR
+fi
+
+MYSQL="mysql -h $MYSQL_HOST -P $DB_PORT_3306_TCP_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD"
 MYSQLDB="$MYSQL $MYSQL_DATABASE"
 
-if [ -f $SAMPLE_DATA_FILE -a -n "$MYSQL_DATABASE" ] ; then
+if [ -f "$SAMPLE_DATA_FILE" -a -n "$MYSQL_DATABASE" ] ; then
 	# The init sql file is still lying around. This means we have not inited the db
 	# Do it now.
 
@@ -35,11 +39,12 @@ if [ -f $SAMPLE_DATA_FILE -a -n "$MYSQL_DATABASE" ] ; then
 fi
 
 # We no longer need the sql file.
+echo "Removing sample data file"
 rm $SAMPLE_DATA_FILE
 
+echo "Changing perimssions on /var/www/html"
 chown -R www-data:www-data /var/www/html
-find /var/www/html -type d -exec chmod 700 {} \;
-find /var/www/html -type f -exec chmod 600 {} \;
+chmod -R go-rX /var/www/html
 
 exec "$@"
 
